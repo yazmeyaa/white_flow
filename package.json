@@ -1,0 +1,10 @@
+{
+  "name": "white-flow",
+  "version": "0.0.1",
+  "description": "Game engine",
+  "main": "dist/index.js",
+  "repository": "https://github.com/yazmeyaa/white-flow",
+  "author": "yazmeyaa[evgenijantonenkov456@gmail.com]",
+  "license": "AGPL-3.0",
+  "private": false
+}
