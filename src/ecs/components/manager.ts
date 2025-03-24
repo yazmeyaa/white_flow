@@ -1,4 +1,4 @@
-import {Bitmap} from "bitmap-index";
+// import {Bitmap} from "bitmap-index";
 import {Component} from "@/ecs/components/component";
 
 export class ComponentsManager {
