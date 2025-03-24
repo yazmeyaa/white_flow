@@ -1,6 +1,8 @@
 import {beforeEach, describe, expect, test} from "@jest/globals";
 import {ISystem} from "@/ecs";
 import {SystemsManager} from "@/ecs/systems/manager";
+import {Clock} from "@/clock";
+import {World} from "@/ecs/world";
 
 describe("[ECS] - Systems", () => {
     let counter = 0;
@@ -33,8 +35,11 @@ describe("[ECS] - Systems", () => {
 
     test("Should process systems correctly", () => {
         manager.addSystem("counter_increment", incrementalSystem);
+        const worldMock = {} as World;
+        const clockMock = {} as Clock;
+
         for (const system of manager.list()) {
-            system.compute({} as ISystem);
+            system.compute(worldMock, clockMock);
         }
 
         expect(counter).toEqual(1);

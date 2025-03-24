@@ -60,7 +60,7 @@ describe("[ECS] - Components", () => {
             initialValue: () => ({value: 0}),
         })
 
-        const store = manager.get<{value: number}>("some_primitive")!
+        const store = manager.get<{ value: number }>("some_primitive")!
         store.set(entityID, {value: 42});
         const component = store.get(entityID)!
         expect(component).not.toBeNull()
@@ -80,5 +80,24 @@ describe("[ECS] - Components", () => {
         expect(pos).not.toBeNull()
         store.remove(1);
         expect(store.get(1)).toBeNull()
+    })
+
+    test("Bitmap should give correct list of components", () => {
+        manager.addComponent(positionComponentName, positionInitOptions)
+        const store = manager.get<Position>(positionComponentName)!
+        for (let i = 0; i < 10; i++) {
+            store.set(i * 2, {x: i, y: i})
+        }
+
+        const indexes: number[] = [];
+
+        store.bitmap.range((x) => {
+            indexes.push(x)
+            return true;
+        })
+
+        const expected = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+        expect(indexes).toEqual(expected)
+
     })
 })

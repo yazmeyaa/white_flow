@@ -36,8 +36,12 @@ export class ComponentsManager {
         }))
     }
 
-    public get<T extends object>(componentName: string): ComponentsStorage<T> | null {
-        return this.components.get(componentName) as ComponentsStorage<T> ?? null;
+    public get<T extends object>(componentName: string): ComponentsStorage<T> {
+        const component = this.components.get(componentName);
+        if (!component) {
+            throw new Error(`Component ${componentName} not found`);
+        }
+        return this.components.get(componentName) as ComponentsStorage<T>;
     }
 }
 
@@ -54,6 +58,10 @@ export class ComponentsStorage<T extends Record<string, any> = Record<string, an
 
     constructor(opts: ComponentsStorageConstructorOptions<T>) {
         this.initialValue = opts.initialValue
+    }
+
+    public list(): IterableIterator<T> {
+        return this.components.values()
     }
 
     public add(entityID: EntityID): void {

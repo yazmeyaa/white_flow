@@ -1,7 +1,15 @@
 import {ISystem} from "@/ecs";
+import {Clock} from "@/clock";
+import {World} from "@/ecs/world";
 
 export class SystemsManager {
     private readonly systems: Map<string, ISystem> = new Map();
+
+    public compute(world: World, clock: Clock): void {
+        for(const system of this.list()) {
+            system.compute(world, clock)
+        }
+    }
 
     public addSystem(name: string, system: ISystem): void {
         if (this.systems.has(name)) {
