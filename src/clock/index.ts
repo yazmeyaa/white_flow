@@ -1,0 +1,1 @@
+export {type OnUpdateFn, Clock} from './clock'

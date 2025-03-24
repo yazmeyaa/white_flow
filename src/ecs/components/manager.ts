@@ -1,36 +1,77 @@
-// import {Bitmap} from "bitmap-index";
-import {Component} from "@/ecs/components/component";
+import {Bitmap} from "bitmap-index";
+
+export type ComponentsInitOptions<T = any> = {
+    readonly initialValue: () => T
+}
+
+export type ComponentName = string;
+
+export type ComponentsConstructorOptions = {
+    initialComponents?: Record<ComponentName, ComponentsInitOptions>
+}
 
 export class ComponentsManager {
-    private readonly components: Map<string, Component> = new Map();
+    private readonly components: Map<string, ComponentsStorage> = new Map();
 
-    public register(name: string, component: Component): void {
-        if (this.components.has(name)) {
-            throw new ComponentAlreadyRegistered(name, component);
+    constructor(opts?: ComponentsConstructorOptions) {
+        if (opts?.initialComponents) {
+            for (const componentName in opts.initialComponents) {
+                const storage = new ComponentsStorage({
+                    initialValue: opts.initialComponents[componentName].initialValue
+                })
+                this.components.set(componentName, storage);
+            }
         }
-        this.components.set(name, component);
     }
 
-    public get(name: string): Component | null {
-        return this.components.get(name) ?? null;
+    public clear(): void {
+        for(const componentName of this.components.keys()) {
+            this.components.delete(componentName);
+        }
+    }
+
+    public addComponent(componentName: string, options: ComponentsInitOptions): void {
+        this.components.set(componentName, new ComponentsStorage({
+            initialValue: options.initialValue,
+        }))
+    }
+
+    public get<T extends object>(componentName: string): ComponentsStorage<T> | null {
+        return this.components.get(componentName) as ComponentsStorage<T> ?? null;
     }
 }
 
-// type EntityID = number;
+type EntityID = number;
 
-// export class ComponentsList {
-//     private readonly components: Map<EntityID, Component> = new Map();
-//     private readonly bm = new Bitmap();
-// }
+export type ComponentsStorageConstructorOptions<T = unknown> = {
+    initialValue: () => T;
+}
 
-class ComponentAlreadyRegistered extends Error {
-    public readonly name: string;
-    public readonly component: Component;
+export class ComponentsStorage<T extends Record<string, any> = Record<string, any>> {
+    private readonly components: Map<EntityID, T> = new Map();
+    public readonly bitmap: Bitmap = new Bitmap()
+    private readonly initialValue: () => T;
 
-    constructor(name: string, component: Component) {
-        const message = `Component already registered: ${name}`;
-        super(message);
-        this.component = component;
-        this.name = name;
+    constructor(opts: ComponentsStorageConstructorOptions<T>) {
+        this.initialValue = opts.initialValue
+    }
+
+    public add(entityID: EntityID): void {
+        this.bitmap.set(entityID)
+        this.components.set(entityID, this.initialValue())
+    }
+
+    public set(entityID: EntityID, value: T): void {
+        this.bitmap.set(entityID)
+        this.components.set(entityID, value)
+    }
+
+    public remove(entityID: EntityID): void {
+        this.components.delete(entityID)
+        this.bitmap.remove(entityID);
+    }
+
+    public get(entityID: EntityID): T | null {
+        return this.components.get(entityID) ?? null;
     }
 }

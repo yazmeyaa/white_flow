@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, jest, test} from "@jest/globals";
-import {Clock} from "@/timer/clock";
+import {Clock} from "@/clock/clock";
 
 describe("[Core] - Clock", () => {
     let clock = new Clock();
